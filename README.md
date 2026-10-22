@@ -18,11 +18,11 @@ The public management page contains navigation links only. GitHub enforces acces
 
 ## Design
 
-A curated repository homepage on a white background. A short introduction and one featured repository lead into a compact repository list. The initial theme is always light; visitors can explicitly select dark mode using the header button. The preference is stored in localStorage and shared between the Korean and English pages. If storage or JavaScript is unavailable, the content and GitHub links remain usable.
+A curated repository homepage on a white background. A compact heading leads directly into repository showcases. Each repository appears once with a factual figure, purpose, concrete details, tags, and a GitHub link. The figures describe actual source files rather than fictional application screens. The initial theme is always light; visitors can explicitly select dark mode using the header button. The preference is stored in localStorage and shared between the Korean and English pages. If storage or JavaScript is unavailable, the content and GitHub links remain usable.
 
 Typography uses IBM Plex Sans KR (400/500/700) from Google Fonts with Korean system fallbacks. Content is limited to 1120px, with a single-column layout below 768px. The site contains no browser-side GitHub API client, search, stars, or automatic repository import.
 
-Content remains in the private repository. The profile locale fields are title, description, headline, intro, and footer. Each entry in content/projects.json represents a selected public GitHub repository. Existing fields remain; optional featured (boolean, at most one true) and tags (up to eight unique short strings) control the presentation. A non-example entry requires a GitHub repository URL. Examples stay clearly labeled. Lists may be empty, and a featured repository is optional.
+Content remains in the private repository. The profile locale fields are title, description, headline, intro, and footer. Each entry in content/projects.json represents a selected public GitHub repository. Optional tags contains up to eight unique short strings. Each locale may include details (one to four title/text pairs) and visual (type, caption, items). Visual types are pipeline and files, with two to four label/text items. Optional fields, detail counts, visual types, and item counts must match between languages. Choose a referenced image or a structured visual, never both. Every value is escaped as text. A non-example entry requires a GitHub repository URL. Examples stay clearly labeled. Lists may be empty, and entries without visuals use a readable text layout. The former featured field is no longer supported.
 
 ## Local workspace
 
@@ -35,7 +35,7 @@ Build requirements: Python 3.12+ and requirements-build.txt (Pillow 12.3.0). Run
 ## Owner workflow
 
 1. Open the management page and sign in to GitHub as CookiePiano.
-2. Select public repositories and edit both translations in the private JSON files. Set featured to true on at most one entry; use order to control the list and tags for short technology labels. Upload images to media/ and reference a path such as media/project.jpg.
+2. Select public repositories and edit both translations in the private JSON files. Use order for the list, tags for short technology labels, and localized details and visual fields to explain the actual repository contents. Upload images to media/ and reference a path such as media/project.jpg.
 3. Run Preview private draft on main. Download its private preview artifact and open ko/index.html or en/index.html locally. Artifacts expire after 3 days.
 4. Run Publish approved draft on main with its confirmation checked. This publishes the whole current draft snapshot.
 5. Review the summary: private source commit, engine commit, public commit, and public HTTP verification.
@@ -73,3 +73,5 @@ Initial portfolio was deployed and verified on 2026-09-18 KST. Public collaborat
 2026-10-22 KST: redesign, single-template refactor, and rename to cookiepiano.github.io. 18 local regression tests passed; local pages were checked in light and dark modes at desktop and 375 px widths. Remote results are recorded in the private README.
 
 2026-10-22 KST, repository homepage redesign (local verification): 24 Python regression tests and six Node theme tests passed. Korean and English pages were checked in both themes at 1440, 768, and 375 px, with no horizontal overflow or axe-core violations. IBM Plex Sans KR loaded in Chromium. Manual checks covered theme persistence across languages, light-first behavior under a dark system preference, blocked theme-script fallback, keyboard skip navigation, reduced motion, long repository names, management, and 404 pages. The generated nine-file public output matched the build and excluded the private marker. These checks do not constitute remote deployment verification.
+
+2026-10-22 KST, repository showcase refinement (local verification): removed the large introduction and duplicated featured entry. Each repository now has a factual figure and concrete details. All 27 Python tests and six Node theme tests passed. Chromium checks covered both languages and themes at 1440, 768, and 375 px: no overflow, 37 axe-core passing checks, no violations or incomplete checks per combination. Screenshots were inspected against the accepted visual baseline and requested hierarchy changes. Evidence stays in the ignored .private/showcases-20261022 directory; remote publication is recorded in the private repository.

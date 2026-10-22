@@ -28,7 +28,7 @@
     <a class="wordmark" href="./" aria-label="{{homeLabel}}">{{name}}</a>
     <nav class="main-nav" aria-label="{{mainNavLabel}}">
       <a href="#repositories">{{navRepositories}}</a>
-      <a href="{{github}}">GitHub</a>
+      <a href="{{github}}" aria-label="{{githubProfile}} @{{githubHandle}}">GitHub</a>
     </nav>
     <div class="header-tools">
       <nav class="language-nav" aria-label="{{languageNavLabel}}">{{languageNav}}</nav>
@@ -39,21 +39,10 @@
     </div>
   </header>
   <main id="main" class="shell" tabindex="-1">
-    <section class="hero" aria-labelledby="intro-title">
-      <div class="hero-copy">
-        <h1 id="intro-title">{{headline}}</h1>
-        <p class="hero-description">{{intro}}</p>
-        <div class="hero-actions">
-          <a class="button" href="#repositories">{{repositoriesCta}}</a>
-          <a class="text-link" href="{{github}}" aria-label="{{githubProfile}} @{{githubHandle}}">{{githubProfile}}</a>
-        </div>
-      </div>
-{{featuredRepository}}
-    </section>
     <section class="repositories" id="repositories" aria-labelledby="repositories-title">
       <div class="section-heading">
-        <h2 id="repositories-title">{{repositoriesTitle}}</h2>
-        <p>{{repositoriesSubtitle}}</p>
+        <h1 id="repositories-title">{{headline}}</h1>
+        <p>{{intro}}</p>
       </div>
 {{projectCaption}}
       <ul class="repository-list">

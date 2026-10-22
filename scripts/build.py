@@ -21,7 +21,7 @@ MAX_SITE_BYTES = 900 * 1024 * 1024
 PROFILE_FIELDS = {'title', 'description', 'headline', 'intro', 'footer'}
 # Rendered on one line: <title>, <meta> attributes.
 SINGLE_LINE_FIELDS = {'title', 'description'}
-COMPUTED_FIELDS = {'lang', 'siteUrl', 'name', 'github', 'githubHandle', 'languageNav', 'projectCaption', 'projects', 'featuredRepository'}
+COMPUTED_FIELDS = {'lang', 'siteUrl', 'name', 'github', 'githubHandle', 'languageNav', 'projectCaption', 'projects'}
 PLACEHOLDER = re.compile(r'\{\{(\w+)\}\}')
 
 
@@ -98,6 +98,30 @@ def normalized_image(path):
     return hashlib.sha256(payload).hexdigest() + '.webp', payload
 
 
+def validate_explanation(content):
+    """Validate structured text only; diagrams cannot embed active HTML or links."""
+    details = content.get('details')
+    if details is not None:
+        require(isinstance(details, list) and 1 <= len(details) <= 4, 'Expected one to four details')
+        for detail in details:
+            keys(detail, {'title', 'text'}, 'detail')
+            text(detail['title'], 'detail title')
+            text(detail['text'], 'detail text')
+    visual = content.get('visual')
+    if visual is not None:
+        keys(visual, {'type', 'caption', 'items'}, 'visual')
+        require(visual['type'] in ('pipeline', 'files'), 'Unsupported visual type')
+        text(visual['caption'], 'visual caption')
+        require(isinstance(visual['items'], list) and 2 <= len(visual['items']) <= 4, 'Expected two to four visual items')
+        for item in visual['items']:
+            keys(item, {'label', 'text'}, 'visual item')
+            text(item['label'], 'visual label')
+            text(item['text'], 'visual text')
+    # Translation structure must match, while all actual text stays localized.
+    return (tuple(sorted(content)), len(details) if details is not None else 0,
+            (visual['type'], len(visual['items'])) if visual is not None else None)
+
+
 def validate_content(drafts):
     profile = load_json(safe_file(drafts, 'content/profile.json'))
     projects = load_json(safe_file(drafts, 'content/projects.json'))
@@ -111,14 +135,10 @@ def validate_content(drafts):
             text(value, key)
     require(isinstance(projects, list) and len(projects) <= 100, 'Expected at most 100 projects')
     ids, orders, images = set(), set(), {}
-    featured_count = 0
     for project in projects:
         required = {'id', 'order', 'example', 'image', 'url', 'locales'}
         require(isinstance(project, dict), 'project: expected an object')
-        keys(project, required | (set(project) & {'featured', 'tags'}), 'project')
-        require(type(project.get('featured', False)) is bool, 'featured must be true or false')
-        featured_count += project.get('featured', False)
-        require(featured_count <= 1, 'Only one repository can be featured')
+        keys(project, required | (set(project) & {'tags'}), 'project')
         tags = project.get('tags', [])
         require(isinstance(tags, list) and len(tags) <= 8, 'Expected at most eight repository tags')
         for tag in tags:
@@ -137,12 +157,18 @@ def validate_content(drafts):
             require(parsed.netloc == 'github.com' and re.fullmatch(r'/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+/?', parsed.path)
                     and not parsed.query and not parsed.fragment, 'Repository URL must point to a GitHub repository')
         require(project['example'] or project['url'] is not None, 'A repository needs a GitHub URL')
-        require(not project.get('featured', False) or not project['example'], 'An example cannot be featured')
         keys(project['locales'], LANGUAGES, 'project.locales')
+        structures = []
         for lang, content in project['locales'].items():
-            keys(content, {'title', 'description', 'alt'}, 'project.' + lang)
-            for key, value in content.items():
-                text(value, key, allow_empty=(key == 'alt' and project['image'] is None))
+            require(isinstance(content, dict), 'project locale: expected an object')
+            keys(content, {'title', 'description', 'alt'} | (set(content) & {'details', 'visual'}), 'project.' + lang)
+            for key in ('title', 'description', 'alt'):
+                text(content[key], key, allow_empty=(key == 'alt' and project['image'] is None))
+            require('details' not in content or content['details'] is not None, 'details cannot be null')
+            require('visual' not in content or content['visual'] is not None, 'visual cannot be null')
+            require(project['image'] is None or 'visual' not in content, 'Choose an image or a structured visual')
+            structures.append(validate_explanation(content))
+        require(all(shape == structures[0] for shape in structures), 'Repository explanation structure must match between languages')
         if project['image'] is not None:
             filename = project['image']
             require(isinstance(filename, str) and filename.startswith('media/'), 'Image path must start with media/')
@@ -182,7 +208,6 @@ def language_nav(current):
     return '<span aria-hidden="true">/</span>'.join(links)
 
 
-REPOSITORY_ICON = '<svg class="repository-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5c-2.5-2-6-2-9-1v15c3-1 6.5-1 9 1 2.5-2 6-2 9-1V4c-3-1-6.5-1-9 1Z"/><path d="M12 5v15"/></svg>'
 EXTERNAL_ICON = '<svg class="external-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg>'
 
 
@@ -201,16 +226,29 @@ def repository_link(project, content, ui):
     return f'<p class="muted">{escaped(ui["pendingLabel"])}</p>'
 
 
-def featured_repository(projects, ui):
-    project = next((p for p in projects if p.get('featured', False)), None)
-    if project is None:
+def repository_visual(project, content, images):
+    if project['image']:
+        name = images[project['image']][0]
+        return (f'<figure class="repository-visual image-visual">'
+                f'<img src="../assets/media/{name}" alt="{escaped(content["alt"], False)}" loading="lazy" decoding="async"></figure>')
+    visual = content.get('visual')
+    if not visual:
         return ''
-    content = project['locales'][ui['lang']]
-    return (f'<aside class="featured-repository" aria-labelledby="featured-title">'
-            f'<p class="featured-label">{REPOSITORY_ICON}{escaped(ui["featuredLabel"])}</p>'
-            f'<h2 id="featured-title">{escaped(content["title"])}</h2>'
-            f'<p class="featured-description">{escaped(content["description"])}</p>'
-            f'{repository_tags(project, ui)}{repository_link(project, content, ui)}</aside>')
+    kind = visual['type']
+    list_tag = 'ol' if kind == 'pipeline' else 'ul'
+    items = ''.join(f'<li><span class="visual-label">{escaped(item["label"])}</span>'
+                    f'<p>{escaped(item["text"])}</p></li>' for item in visual['items'])
+    return (f'<figure class="repository-visual {kind}-visual">'
+            f'<figcaption>{escaped(visual["caption"])}</figcaption>'
+            f'<{list_tag} class="visual-items">{items}</{list_tag}></figure>')
+
+
+def repository_details(content):
+    details = content.get('details', [])
+    if not details:
+        return ''
+    items = ''.join(f'<div><dt>{escaped(item["title"])}</dt><dd>{escaped(item["text"])}</dd></div>' for item in details)
+    return f'<dl class="repository-details">{items}</dl>'
 
 
 def cards(projects, images, ui):
@@ -219,17 +257,16 @@ def cards(projects, images, ui):
     rendered = []
     for project in projects:
         content = project['locales'][ui['lang']]
-        if project['image']:
-            name = images[project['image']][0]
-            cover = f'<img class="repository-image" src="../assets/media/{name}" alt="{escaped(content["alt"], False)}" loading="lazy" decoding="async">'
-        else:
-            cover = REPOSITORY_ICON
+        visual = repository_visual(project, content, images)
+        layout = 'repository-showcase' if visual else 'repository-showcase text-only'
+        title_id = f'repository-{project["id"]}-title'
         label = f'<p class="example-label">{escaped(ui["exampleLabel"])}</p>' if project['example'] else ''
         rendered.append(
-            f'        <li class="repository-row" id="repository-{project["id"]}">{cover}'
-            f'<div class="repository-copy">{label}<h3>{escaped(content["title"])}</h3>'
-            f'<p class="repository-description">{escaped(content["description"], False)}</p>{repository_tags(project, ui)}</div>'
-            f'{repository_link(project, content, ui)}</li>')
+            f'        <li id="repository-{project["id"]}"><article class="{layout}" aria-labelledby="{title_id}">'
+            f'<header class="repository-heading">{label}<h2 id="{title_id}">{escaped(content["title"])}</h2>'
+            f'<p class="repository-description">{escaped(content["description"])}</p></header>{visual}'
+            f'<div class="repository-body">{repository_details(content)}{repository_tags(project, ui)}'
+            f'{repository_link(project, content, ui)}</div></article></li>')
     return '\n'.join(rendered)
 
 
@@ -249,7 +286,6 @@ def render_page(template, profile, projects, images, ui, lang):
         languageNav=language_nav(lang),
         projectCaption=caption,
         projects=cards(projects, images, strings),
-        featuredRepository=featured_repository(projects, strings),
     )
     placeholders = set(PLACEHOLDER.findall(template))
     require(placeholders <= set(values), 'Template uses an undefined field')

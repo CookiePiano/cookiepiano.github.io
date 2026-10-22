@@ -89,31 +89,81 @@ class SecurityTests(unittest.TestCase):
         finally:
             build.load_json = original
 
-    def test_featured_repository_is_independent_of_list_order(self):
-        self.project.update(example=False, url='https://github.com/CookiePiano/example', featured=True, tags=['Python'])
+    def test_repositories_render_once_in_curated_order(self):
+        self.project.update(example=False, url='https://github.com/CookiePiano/example', tags=['Python'])
         second = copy.deepcopy(self.project)
-        second.update(id='second', order=0, featured=False, url='https://github.com/CookiePiano/second')
+        second.update(id='second', order=0, url='https://github.com/CookiePiano/second')
         for locale in second['locales'].values():
             locale['title'] = 'Second repository'
         self.projects.append(second)
         page = (self.render() / 'ko/index.html').read_text(encoding='utf-8')
-        self.assertEqual(page.count('id="featured-title"'), 1)
-        self.assertIn('id="featured-title">Example</h2>', page)
+        self.assertEqual(page.count('>Example</h2>'), 1)
+        self.assertEqual(page.count('<article '), 2)
+        self.assertNotIn('featured-repository', page)
         self.assertLess(page.index('id="repository-second"'), page.index('id="repository-test-project"'))
         self.assertIn('<li>Python</li>', page)
 
-    def test_multiple_featured_repositories_and_featured_examples_rejected(self):
-        self.project['featured'] = True
+    def add_explanation(self):
+        for content in self.project['locales'].values():
+            content['details'] = [{'title': 'How it works', 'text': 'A concrete explanation'}]
+            content['visual'] = {'type': 'pipeline', 'caption': 'Source to output', 'items': [
+                {'label': 'Source', 'text': 'Input'}, {'label': 'Output', 'text': 'Result'}]}
+
+    def test_explanations_are_escaped_and_rendered_in_both_languages(self):
+        self.add_explanation()
+        attack = '<img src=x onerror=alert(1)>{{github}}'
+        for content in self.project['locales'].values():
+            content['details'][0] = {'title': attack, 'text': attack}
+            content['visual']['caption'] = attack
+            content['visual']['items'][0] = {'label': attack, 'text': attack}
+        out = self.render()
+        for lang in site_config.LANGUAGES:
+            page = (out / lang / 'index.html').read_text(encoding='utf-8')
+            self.assertEqual(page.count('&lt;img src=x onerror=alert(1)&gt;{{github}}'), 5)
+            self.assertNotIn('<img src=x', page)
+            self.assertIn('<figure ', page)
+            self.assertIn('<dl ', page)
+
+    def test_explanation_translation_structure_must_match(self):
+        for mutation in ('missing', 'details', 'items', 'type'):
+            self.add_explanation()
+            content = self.project['locales']['en']
+            if mutation == 'missing':
+                del content['details']
+            elif mutation == 'details':
+                content['details'].append({'title': 'Extra', 'text': 'Extra'})
+            elif mutation == 'items':
+                content['visual']['items'].append({'label': 'Extra', 'text': 'Extra'})
+            else:
+                content['visual']['type'] = 'files'
+            self.save()
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                build.validate_content(self.draft)
+
+    def test_invalid_explanations_and_conflicting_images_are_rejected(self):
+        for field, value in [('details', None), ('details', []), ('details', [{'title': 'No text'}]),
+                             ('visual', None), ('visual', {'type': 'html', 'caption': 'X', 'items': []}),
+                             ('visual', {'type': 'files', 'caption': 'X', 'items': [{'label': 'Only one', 'text': 'X'}]})]:
+            self.add_explanation()
+            for content in self.project['locales'].values():
+                content[field] = value
+            self.save()
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                build.validate_content(self.draft)
+        self.add_explanation()
+        self.image()
         self.save()
         with self.assertRaises(ValueError):
             build.validate_content(self.draft)
-        self.project.update(example=False, url='https://github.com/CookiePiano/example')
-        second = copy.deepcopy(self.project)
-        second.update(id='second', order=2)
-        self.projects.append(second)
-        self.save()
-        with self.assertRaises(ValueError):
-            build.validate_content(self.draft)
+
+    def test_file_visuals_preserve_document_text(self):
+        self.add_explanation()
+        for content in self.project['locales'].values():
+            content['visual']['type'] = 'files'
+            content['visual']['items'][0]['text'] = '# Heading\nActual README text'
+        page = (self.render() / 'en/index.html').read_text(encoding='utf-8')
+        self.assertIn('# Heading<br>Actual README text', page)
+        self.assertIn('files-visual', page)
 
     def test_repository_urls_must_be_actual_github_path_shapes(self):
         self.project['example'] = False
@@ -149,7 +199,8 @@ class SecurityTests(unittest.TestCase):
         self.project.update(example=False, url='https://github.com/CookiePiano/example')
         out = self.render()
         page = (out / 'en/index.html').read_text(encoding='utf-8')
-        self.assertEqual(page.count('class="repository-row"'), 1)
+        self.assertEqual(page.count('<article '), 1)
+        self.assertNotIn('<figure ', page)
         self.assertNotIn('id="featured-title"', page)
         self.assertTrue((out / 'assets/theme.js').is_file())
         self.assertLess(page.index('src="../assets/theme.js"'), page.index('href="../assets/styles.css"'))
