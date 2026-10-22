@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>페이지를 찾을 수 없음 — PISTCO</title>
+  <meta name="theme-color" content="#ffffff">
+  <script src="/assets/theme.js"></script>
+  <title>페이지를 찾을 수 없음 — CookiePiano</title>
   <meta name="robots" content="noindex">
   <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,13 +14,20 @@
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
-  <header class="site-header shell"><a class="wordmark" href="/ko/" aria-label="PISTCO 홈">PISTCO<span aria-hidden="true">.</span></a></header>
-  <main class="graph">
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header shell">
+    <a class="wordmark" href="/ko/" aria-label="CookiePiano 홈">CookiePiano</a>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="다크 모드" aria-pressed="false" hidden>
+        <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+        <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg>
+      </button>
+  </header>
+  <main id="main" tabindex="-1">
     <div class="not-found shell">
       <h1>페이지를 찾을 수 없습니다.</h1>
       <p>주소가 바뀌었거나 삭제된 페이지입니다.</p>
       <p lang="en">This page has moved or no longer exists.</p>
-      <p><a class="cta" href="/ko/">한국어 홈으로</a><a class="cta" href="/en/" lang="en">English home</a></p>
+      <p><a class="button" href="/ko/">한국어 홈으로</a><a class="button" href="/en/" lang="en">English home</a></p>
     </div>
   </main>
 </body>

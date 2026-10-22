@@ -1,15 +1,15 @@
-# PISTCO Research Portfolio
+# CookiePiano Repository Homepage
 
-Bilingual static portfolio at https://cookiepiano.github.io/, published from main:/docs. Browser code uses no server, database, or framework.
+Bilingual static repository homepage at https://cookiepiano.github.io/, published from main:/docs. Browser code uses no server, database, or framework.
 
-The owning GitHub account was renamed from PISTCO to CookiePiano (owner ID 220297881), and this repository from pistco.github.io to cookiepiano.github.io. The site brand remains PISTCO. Never link to github.com/PISTCO: the retired name can be claimed by another account.
+The owning GitHub account was renamed from PISTCO to CookiePiano (owner ID 220297881), and this repository from pistco.github.io to cookiepiano.github.io. The site brand is CookiePiano. Never link to github.com/PISTCO: the retired name can be claimed by another account.
 
 ## Management and authoritative inputs
 
 - Management entrance: https://cookiepiano.github.io/admin/
 - Private drafts: https://github.com/CookiePiano/pistco-site-content (owner only).
 - Content source: content/profile.json, content/projects.json, and referenced media/ files in the private repository.
-- Layout source: templates/page.html (one template for both languages), templates/ui.json (Korean and English interface copy with identical keys), docs/assets/styles.css, docs/assets/icon.svg, and docs/admin/index.html.
+- Layout source: templates/page.html (one template for both languages), templates/ui.json (Korean and English interface copy with identical keys), docs/assets/styles.css, docs/assets/theme.js, docs/assets/icon.svg, and docs/admin/index.html.
 - Site identity: scripts/site_config.py holds the site URL, owner ID, public repository ID, and the public file allowlist shared by the builder, publisher, and tests.
 - Generated pages: docs/ko/index.html, docs/en/index.html, and docs/assets/media/.
 - Public entrypoints: docs/index.html (browser-language redirect, Korean fallback), docs/404.html, and docs/.nojekyll.
@@ -18,7 +18,11 @@ The public management page contains navigation links only. GitHub enforces acces
 
 ## Design
 
-The page is drawn as a research record on graph paper: the hero is a drawing sheet whose title block (name, status, summary, document type) sits in the lower-right corner, as on an engineering drawing. Dark mode follows the system setting and renders as a cyanotype blueprint. Typography uses IBM Plex Sans KR (400/500/700) from Google Fonts with system Korean fallbacks. Numbering appears only where order is real: project order and management steps.
+A curated repository homepage on a white background. A short introduction and one featured repository lead into a compact repository list. The initial theme is always light; visitors can explicitly select dark mode using the header button. The preference is stored in localStorage and shared between the Korean and English pages. If storage or JavaScript is unavailable, the content and GitHub links remain usable.
+
+Typography uses IBM Plex Sans KR (400/500/700) from Google Fonts with Korean system fallbacks. Content is limited to 1120px, with a single-column layout below 768px. The site contains no browser-side GitHub API client, search, stars, or automatic repository import.
+
+Content remains in the private repository. The profile locale fields are title, description, headline, intro, and footer. Each entry in content/projects.json represents a selected public GitHub repository. Existing fields remain; optional featured (boolean, at most one true) and tags (up to eight unique short strings) control the presentation. A non-example entry requires a GitHub repository URL. Examples stay clearly labeled. Lists may be empty, and a featured repository is optional.
 
 ## Local workspace
 
@@ -26,12 +30,12 @@ Initial location: C:\Users\razer\Desktop\project\github_pages. Private source be
 
 Use that environment's Python interpreter with scripts/build.py, passing --content .private/site-content --out .private/preview-NEW-NAME. The output directory must not exist. Open generated ko/index.html or en/index.html locally. The existing node scripts/preview.mjs command serves the public docs/ directory on loopback port 4173 only.
 
-Build requirements: Python 3.12+ and requirements-build.txt (Pillow 12.3.0). Run scripts/test_security.py for regression checks. Edit private content or public templates, never generated page content. Pull the public repository after workflow publication before further local changes. Preserve unrelated edits.
+Build requirements: Python 3.12+ and requirements-build.txt (Pillow 12.3.0). Run scripts/test_security.py and node --test scripts/test_theme.mjs for regression checks. Edit private content or public templates, never generated page content. Pull the public repository after workflow publication before further local changes. Preserve unrelated edits.
 
 ## Owner workflow
 
 1. Open the management page and sign in to GitHub as CookiePiano.
-2. Edit both translations in the private JSON files. Upload images to media/ and reference a path such as media/project.jpg.
+2. Select public repositories and edit both translations in the private JSON files. Set featured to true on at most one entry; use order to control the list and tags for short technology labels. Upload images to media/ and reference a path such as media/project.jpg.
 3. Run Preview private draft on main. Download its private preview artifact and open ko/index.html or en/index.html locally. Artifacts expire after 3 days.
 4. Run Publish approved draft on main with its confirmation checked. This publishes the whole current draft snapshot.
 5. Review the summary: private source commit, engine commit, public commit, and public HTTP verification.
@@ -67,3 +71,5 @@ Private Actions use account-included usage. This project does not enable paid us
 Initial portfolio was deployed and verified on 2026-09-18 KST. Public collaborator listing confirmed only the owner before this change. Tests do not guarantee absolute security, and giving another user access changes the trust boundary.
 
 2026-10-22 KST: redesign, single-template refactor, and rename to cookiepiano.github.io. 18 local regression tests passed; local pages were checked in light and dark modes at desktop and 375 px widths. Remote results are recorded in the private README.
+
+2026-10-22 KST, repository homepage redesign (local verification): 24 Python regression tests and six Node theme tests passed. Korean and English pages were checked in both themes at 1440, 768, and 375 px, with no horizontal overflow or axe-core violations. IBM Plex Sans KR loaded in Chromium. Manual checks covered theme persistence across languages, light-first behavior under a dark system preference, blocked theme-script fallback, keyboard skip navigation, reduced motion, long repository names, management, and 404 pages. The generated nine-file public output matched the build and excluded the private marker. These checks do not constitute remote deployment verification.

@@ -20,7 +20,7 @@ class SecurityTests(unittest.TestCase):
         (self.draft / 'content').mkdir(parents=True)
         (self.draft / 'media').mkdir()
         local = {k: 'Test ' + k for k in build.PROFILE_FIELDS}
-        self.profile = {'name': 'PISTCO', 'github': 'https://github.com/CookiePiano', 'locales': {'ko': local.copy(), 'en': local.copy()}}
+        self.profile = {'name': 'CookiePiano', 'github': 'https://github.com/CookiePiano', 'locales': {'ko': local.copy(), 'en': local.copy()}}
         self.project = {'id': 'test-project', 'order': 1, 'example': True, 'image': None, 'url': None, 'locales': {lang: {'title': 'Example', 'description': 'Test description', 'alt': ''} for lang in ('ko', 'en')}}
         self.projects = [self.project]
 
@@ -88,6 +88,71 @@ class SecurityTests(unittest.TestCase):
                 build.load_ui()
         finally:
             build.load_json = original
+
+    def test_featured_repository_is_independent_of_list_order(self):
+        self.project.update(example=False, url='https://github.com/CookiePiano/example', featured=True, tags=['Python'])
+        second = copy.deepcopy(self.project)
+        second.update(id='second', order=0, featured=False, url='https://github.com/CookiePiano/second')
+        for locale in second['locales'].values():
+            locale['title'] = 'Second repository'
+        self.projects.append(second)
+        page = (self.render() / 'ko/index.html').read_text(encoding='utf-8')
+        self.assertEqual(page.count('id="featured-title"'), 1)
+        self.assertIn('id="featured-title">Example</h2>', page)
+        self.assertLess(page.index('id="repository-second"'), page.index('id="repository-test-project"'))
+        self.assertIn('<li>Python</li>', page)
+
+    def test_multiple_featured_repositories_and_featured_examples_rejected(self):
+        self.project['featured'] = True
+        self.save()
+        with self.assertRaises(ValueError):
+            build.validate_content(self.draft)
+        self.project.update(example=False, url='https://github.com/CookiePiano/example')
+        second = copy.deepcopy(self.project)
+        second.update(id='second', order=2)
+        self.projects.append(second)
+        self.save()
+        with self.assertRaises(ValueError):
+            build.validate_content(self.draft)
+
+    def test_repository_urls_must_be_actual_github_path_shapes(self):
+        self.project['example'] = False
+        for url in (None, 'https://example.com/repository', 'https://github.com/CookiePiano',
+                    'https://github.com/CookiePiano/example/tree/main', 'https://github.com:444/CookiePiano/example',
+                    'https://github.com/CookiePiano/example?tab=readme', 'https://github.com.evil.test/a/b'):
+            self.project['url'] = url
+            self.save()
+            with self.subTest(url=url), self.assertRaises(ValueError):
+                build.validate_content(self.draft)
+
+    def test_tags_are_validated_and_escaped(self):
+        for tags in ('Python', ['same', 'same'], ['x' * 41], ['line\nbreak'], [1], ['']):
+            self.project['tags'] = tags
+            self.save()
+            with self.subTest(tags=tags), self.assertRaises(ValueError):
+                build.validate_content(self.draft)
+        self.project['tags'] = ['<img src=x onerror=alert(1)>']
+        page = (self.render() / 'ko/index.html').read_text(encoding='utf-8')
+        self.assertIn('&lt;img src=x onerror=alert(1)&gt;', page)
+        self.assertNotIn('<img src=x', page)
+
+    def test_empty_repository_list_renders_in_both_languages(self):
+        self.projects = []
+        out = self.render()
+        for lang in site_config.LANGUAGES:
+            page = (out / lang / 'index.html').read_text(encoding='utf-8')
+            self.assertIn('class="empty-repositories"', page)
+            self.assertNotIn('id="featured-title"', page)
+            self.assertIn('https://github.com/CookiePiano', page)
+
+    def test_single_repository_without_optional_fields_and_theme_asset(self):
+        self.project.update(example=False, url='https://github.com/CookiePiano/example')
+        out = self.render()
+        page = (out / 'en/index.html').read_text(encoding='utf-8')
+        self.assertEqual(page.count('class="repository-row"'), 1)
+        self.assertNotIn('id="featured-title"', page)
+        self.assertTrue((out / 'assets/theme.js').is_file())
+        self.assertLess(page.index('src="../assets/theme.js"'), page.index('href="../assets/styles.css"'))
 
     def test_dangerous_and_credential_urls_rejected(self):
         for url in ('javascript:alert(1)', 'data:text/html,test', 'http://example.com', 'https://a:b@example.com', 'https://example.com\\evil', 'https://example.com\n'):

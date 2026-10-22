@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{title}}</title>
   <meta name="description" content="{{description}}">
-  <meta name="theme-color" content="#f5f7f9" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0b2f6b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#ffffff">
+  <script src="../assets/theme.js"></script>
   <link rel="canonical" href="{{siteUrl}}{{lang}}/">
   <link rel="alternate" hreflang="ko" href="{{siteUrl}}ko/">
   <link rel="alternate" hreflang="en" href="{{siteUrl}}en/">
@@ -22,67 +22,55 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;display=swap">
   <link rel="stylesheet" href="../assets/styles.css">
 </head>
-<body>
+<body id="top">
   <a class="skip-link" href="#main">{{skipLink}}</a>
   <header class="site-header shell">
-    <a class="wordmark" href="./" aria-label="{{homeLabel}}">PISTCO<span aria-hidden="true">.</span></a>
+    <a class="wordmark" href="./" aria-label="{{homeLabel}}">{{name}}</a>
     <nav class="main-nav" aria-label="{{mainNavLabel}}">
-      <a href="#about">{{navAbout}}</a>
-      <a href="#research">{{navResearch}}</a>
-      <a href="#projects">{{navProjects}}</a>
-      <a href="#links">{{navLinks}}</a>
+      <a href="#repositories">{{navRepositories}}</a>
+      <a href="{{github}}">GitHub</a>
     </nav>
-    <nav class="language-nav" aria-label="{{languageNavLabel}}">{{languageNav}}</nav>
+    <div class="header-tools">
+      <nav class="language-nav" aria-label="{{languageNavLabel}}">{{languageNav}}</nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="{{darkThemeLabel}}" aria-pressed="false" hidden>
+        <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+        <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg>
+      </button>
+    </div>
   </header>
-  <main id="main">
-    <section class="hero graph" id="about" aria-labelledby="intro-title">
-      <div class="hero-sheet shell">
-        <div class="hero-copy">
-          <h1 id="intro-title">{{headline}}</h1>
-          <p class="hero-description">{{intro}}</p>
-          <a class="cta" href="#projects">{{projectsCta}}</a>
+  <main id="main" class="shell" tabindex="-1">
+    <section class="hero" aria-labelledby="intro-title">
+      <div class="hero-copy">
+        <h1 id="intro-title">{{headline}}</h1>
+        <p class="hero-description">{{intro}}</p>
+        <div class="hero-actions">
+          <a class="button" href="#repositories">{{repositoriesCta}}</a>
+          <a class="text-link" href="{{github}}" aria-label="{{githubProfile}} @{{githubHandle}}">{{githubProfile}}</a>
         </div>
-        <dl class="title-block" aria-label="{{titleBlockLabel}}">
-          <div class="title-row title-name"><dt>{{fieldName}}</dt><dd>{{name}}</dd></div>
-          <div class="title-row"><dt>{{fieldStatus}}</dt><dd><span class="status-dot" aria-hidden="true"></span>{{status}}</dd></div>
-          <div class="title-row"><dt>{{fieldSummary}}</dt><dd>{{summary}}</dd></div>
-          <div class="title-row"><dt>{{fieldDocument}}</dt><dd>{{documentType}}</dd></div>
-        </dl>
       </div>
+{{featuredRepository}}
     </section>
-    <section class="split shell" id="research" aria-labelledby="research-title">
-      <h2 id="research-title">{{researchTitle}}</h2>
-      <div class="research-copy">
-        <p class="lead">{{researchLead}}</p>
-        <p class="muted">{{researchBody}}</p>
+    <section class="repositories" id="repositories" aria-labelledby="repositories-title">
+      <div class="section-heading">
+        <h2 id="repositories-title">{{repositoriesTitle}}</h2>
+        <p>{{repositoriesSubtitle}}</p>
       </div>
-    </section>
-    <section class="projects shell" id="projects" aria-labelledby="projects-title">
-      <div class="split">
-        <h2 id="projects-title">{{projectsTitle}}</h2>
-        {{projectCaption}}
-      </div>
-      <ol class="project-grid">
+{{projectCaption}}
+      <ul class="repository-list">
 {{projects}}
-      </ol>
-    </section>
-    <section class="split shell" id="links" aria-labelledby="links-title">
-      <div>
-        <h2 id="links-title">{{linksTitle}}</h2>
-        <p class="muted">{{linksBody}}</p>
-      </div>
-      <a class="github-link" href="{{github}}">
-        <span class="github-name">GitHub</span>
-        <span class="github-handle">@{{githubHandle}}</span>
-        <span class="external" aria-hidden="true">↗</span>
-      </a>
+      </ul>
     </section>
   </main>
   <footer class="site-footer shell">
-    <a class="wordmark" href="./" aria-label="{{homeLabel}}">PISTCO<span aria-hidden="true">.</span></a>
-    <p>{{footer}}</p>
-    <a href="../admin/">{{adminLink}}</a>
-    <a href="#about">{{backToTop}}</a>
+    <div class="footer-identity">
+      <a class="wordmark" href="./" aria-label="{{homeLabel}}">{{name}}</a>
+      <p>{{footer}}</p>
+    </div>
+    <nav class="footer-nav" aria-label="{{footerNavLabel}}">
+      <a href="{{github}}">GitHub</a>
+      <a href="../admin/">{{adminLink}}</a>
+      <a href="#top">{{backToTop}}</a>
+    </nav>
   </footer>
 </body>
 </html>

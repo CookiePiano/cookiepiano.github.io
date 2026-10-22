@@ -18,10 +18,10 @@ ROOT = Path(__file__).resolve().parents[1]
 Image.MAX_IMAGE_PIXELS = 25_000_000
 MAX_BYTES = 10 * 1024 * 1024
 MAX_SITE_BYTES = 900 * 1024 * 1024
-PROFILE_FIELDS = {'title', 'description', 'headline', 'intro', 'status', 'summary', 'researchLead', 'researchBody', 'footer'}
+PROFILE_FIELDS = {'title', 'description', 'headline', 'intro', 'footer'}
 # Rendered on one line: <title>, <meta> attributes.
 SINGLE_LINE_FIELDS = {'title', 'description'}
-COMPUTED_FIELDS = {'lang', 'siteUrl', 'name', 'github', 'githubHandle', 'languageNav', 'projectCaption', 'projects'}
+COMPUTED_FIELDS = {'lang', 'siteUrl', 'name', 'github', 'githubHandle', 'languageNav', 'projectCaption', 'projects', 'featuredRepository'}
 PLACEHOLDER = re.compile(r'\{\{(\w+)\}\}')
 
 
@@ -111,8 +111,20 @@ def validate_content(drafts):
             text(value, key)
     require(isinstance(projects, list) and len(projects) <= 100, 'Expected at most 100 projects')
     ids, orders, images = set(), set(), {}
+    featured_count = 0
     for project in projects:
-        keys(project, {'id', 'order', 'example', 'image', 'url', 'locales'}, 'project')
+        required = {'id', 'order', 'example', 'image', 'url', 'locales'}
+        require(isinstance(project, dict), 'project: expected an object')
+        keys(project, required | (set(project) & {'featured', 'tags'}), 'project')
+        require(type(project.get('featured', False)) is bool, 'featured must be true or false')
+        featured_count += project.get('featured', False)
+        require(featured_count <= 1, 'Only one repository can be featured')
+        tags = project.get('tags', [])
+        require(isinstance(tags, list) and len(tags) <= 8, 'Expected at most eight repository tags')
+        for tag in tags:
+            text(tag, 'tag')
+            require(len(tag) <= 40 and '\n' not in tag and '\t' not in tag, 'Tags must be short single-line text')
+        require(len(tags) == len(set(tags)), 'Duplicate repository tag')
         require(isinstance(project['id'], str) and re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', project['id']), 'Invalid project ID')
         require(project['id'] not in ids, 'Duplicate project ID')
         ids.add(project['id'])
@@ -121,6 +133,11 @@ def validate_content(drafts):
         require(type(project['example']) is bool, 'example must be true or false')
         if project['url'] is not None:
             https_url(project['url'])
+            parsed = urlsplit(project['url'])
+            require(parsed.netloc == 'github.com' and re.fullmatch(r'/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+/?', parsed.path)
+                    and not parsed.query and not parsed.fragment, 'Repository URL must point to a GitHub repository')
+        require(project['example'] or project['url'] is not None, 'A repository needs a GitHub URL')
+        require(not project.get('featured', False) or not project['example'], 'An example cannot be featured')
         keys(project['locales'], LANGUAGES, 'project.locales')
         for lang, content in project['locales'].items():
             keys(content, {'title', 'description', 'alt'}, 'project.' + lang)
@@ -165,25 +182,54 @@ def language_nav(current):
     return '<span aria-hidden="true">/</span>'.join(links)
 
 
+REPOSITORY_ICON = '<svg class="repository-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5c-2.5-2-6-2-9-1v15c3-1 6.5-1 9 1 2.5-2 6-2 9-1V4c-3-1-6.5-1-9 1Z"/><path d="M12 5v15"/></svg>'
+EXTERNAL_ICON = '<svg class="external-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg>'
+
+
+def repository_tags(project, ui):
+    tags = project.get('tags', [])
+    if not tags:
+        return ''
+    items = ''.join(f'<li>{escaped(tag, False)}</li>' for tag in tags)
+    return f'<ul class="tags" aria-label="{escaped(ui["tagsLabel"], False)}">{items}</ul>'
+
+
+def repository_link(project, content, ui):
+    if project['url']:
+        label = escaped(ui['viewRepository'])
+        return f'<a class="repository-link" href="{escaped(project["url"], False)}">{label}<span class="sr-only">: {escaped(content["title"])}</span>{EXTERNAL_ICON}</a>'
+    return f'<p class="muted">{escaped(ui["pendingLabel"])}</p>'
+
+
+def featured_repository(projects, ui):
+    project = next((p for p in projects if p.get('featured', False)), None)
+    if project is None:
+        return ''
+    content = project['locales'][ui['lang']]
+    return (f'<aside class="featured-repository" aria-labelledby="featured-title">'
+            f'<p class="featured-label">{REPOSITORY_ICON}{escaped(ui["featuredLabel"])}</p>'
+            f'<h2 id="featured-title">{escaped(content["title"])}</h2>'
+            f'<p class="featured-description">{escaped(content["description"])}</p>'
+            f'{repository_tags(project, ui)}{repository_link(project, content, ui)}</aside>')
+
+
 def cards(projects, images, ui):
+    if not projects:
+        return f'<li class="empty-repositories"><p>{escaped(ui["emptyRepositories"])}</p></li>'
     rendered = []
-    for index, project in enumerate(projects, 1):
+    for project in projects:
         content = project['locales'][ui['lang']]
         if project['image']:
             name = images[project['image']][0]
-            cover = f'<img class="project-image" src="../assets/media/{name}" alt="{escaped(content["alt"], False)}" loading="lazy" decoding="async">'
+            cover = f'<img class="repository-image" src="../assets/media/{name}" alt="{escaped(content["alt"], False)}" loading="lazy" decoding="async">'
         else:
-            cover = '<div class="project-sheet" aria-hidden="true"></div>'
-        label = ui['exampleLabel'] if project['example'] else ui['projectLabel']
-        link = ''
-        if project['url']:
-            link = f'<a class="project-link" href="{escaped(project["url"], False)}">{escaped(ui["viewProject"])} <span aria-hidden="true">↗</span></a>'
-        elif project['example']:
-            link = f'<p class="pending-label">{escaped(ui["pendingLabel"])}</p>'
+            cover = REPOSITORY_ICON
+        label = f'<p class="example-label">{escaped(ui["exampleLabel"])}</p>' if project['example'] else ''
         rendered.append(
-            f'        <li class="project-card" id="project-{project["id"]}">{cover}'
-            f'<p class="card-meta"><span class="card-number">{index:02}</span><span>{escaped(label)}</span></p>'
-            f'<h3>{escaped(content["title"])}</h3><p class="card-description">{escaped(content["description"])}</p>{link}</li>')
+            f'        <li class="repository-row" id="repository-{project["id"]}">{cover}'
+            f'<div class="repository-copy">{label}<h3>{escaped(content["title"])}</h3>'
+            f'<p class="repository-description">{escaped(content["description"], False)}</p>{repository_tags(project, ui)}</div>'
+            f'{repository_link(project, content, ui)}</li>')
     return '\n'.join(rendered)
 
 
@@ -203,6 +249,7 @@ def render_page(template, profile, projects, images, ui, lang):
         languageNav=language_nav(lang),
         projectCaption=caption,
         projects=cards(projects, images, strings),
+        featuredRepository=featured_repository(projects, strings),
     )
     placeholders = set(PLACEHOLDER.findall(template))
     require(placeholders <= set(values), 'Template uses an undefined field')
