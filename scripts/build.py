@@ -12,10 +12,17 @@ from urllib.parse import urlsplit
 
 from PIL import Image, ImageOps
 
+from site_config import LANGUAGES, SITE_URL, STATIC_FILES
+
 ROOT = Path(__file__).resolve().parents[1]
 Image.MAX_IMAGE_PIXELS = 25_000_000
 MAX_BYTES = 10 * 1024 * 1024
+MAX_SITE_BYTES = 900 * 1024 * 1024
 PROFILE_FIELDS = {'title', 'description', 'headline', 'intro', 'status', 'summary', 'researchLead', 'researchBody', 'footer'}
+# Rendered on one line: <title>, <meta> attributes.
+SINGLE_LINE_FIELDS = {'title', 'description'}
+COMPUTED_FIELDS = {'lang', 'siteUrl', 'name', 'github', 'githubHandle', 'languageNav', 'projectCaption', 'projects'}
+PLACEHOLDER = re.compile(r'\{\{(\w+)\}\}')
 
 
 def require(condition, message):
@@ -97,7 +104,7 @@ def validate_content(drafts):
     keys(profile, {'name', 'github', 'locales'}, 'profile')
     text(profile['name'], 'name')
     https_url(profile['github'])
-    keys(profile['locales'], {'ko', 'en'}, 'profile.locales')
+    keys(profile['locales'], LANGUAGES, 'profile.locales')
     for lang, content in profile['locales'].items():
         keys(content, PROFILE_FIELDS, 'profile.' + lang)
         for key, value in content.items():
@@ -114,7 +121,7 @@ def validate_content(drafts):
         require(type(project['example']) is bool, 'example must be true or false')
         if project['url'] is not None:
             https_url(project['url'])
-        keys(project['locales'], {'ko', 'en'}, 'project.locales')
+        keys(project['locales'], LANGUAGES, 'project.locales')
         for lang, content in project['locales'].items():
             keys(content, {'title', 'description', 'alt'}, 'project.' + lang)
             for key, value in content.items():
@@ -127,30 +134,80 @@ def validate_content(drafts):
     return profile, sorted(projects, key=lambda p: p['order']), images
 
 
+def load_ui():
+    """Interface copy lives beside the template; both languages must define the same keys."""
+    ui = load_json(ROOT / 'templates' / 'ui.json')
+    keys(ui, LANGUAGES, 'ui')
+    expected = set(ui[LANGUAGES[0]])
+    require(not expected & (PROFILE_FIELDS | COMPUTED_FIELDS), 'ui: keys collide with content fields')
+    for lang in LANGUAGES:
+        keys(ui[lang], expected, 'ui.' + lang)
+        for key, value in ui[lang].items():
+            text(value, 'ui.' + key)
+    return ui
+
+
 def escaped(value, multiline=True):
     result = html.escape(value, quote=True)
     return result.replace('\n', '<br>') if multiline else result.replace('\n', ' ')
 
 
-def cards(projects, images, lang):
+def github_handle(url):
+    parsed = urlsplit(url)
+    return parsed.path.strip('/').split('/')[0] or parsed.hostname
+
+
+def language_nav(current):
+    links = []
+    for lang in LANGUAGES:
+        state = ' aria-current="page"' if lang == current else f' hreflang="{lang}"'
+        links.append(f'<a href="../{lang}/" lang="{lang}"{state}>{lang.upper()}</a>')
+    return '<span aria-hidden="true">/</span>'.join(links)
+
+
+def cards(projects, images, ui):
     rendered = []
     for index, project in enumerate(projects, 1):
-        content = project['locales'][lang]
+        content = project['locales'][ui['lang']]
         if project['image']:
             name = images[project['image']][0]
             cover = f'<img class="project-image" src="../assets/media/{name}" alt="{escaped(content["alt"], False)}" loading="lazy" decoding="async">'
         else:
-            style = 'cover-blue' if index % 2 else 'cover-light'
-            cover = f'<div class="project-cover {style}" aria-hidden="true"><span class="cover-label">PROJECT / {index:02}</span><span class="cover-number">{index:02}</span><span class="cover-foot">PISTCO — PORTFOLIO</span></div>'
-        label = ('편집용 예시' if lang == 'ko' else 'Editing example') if project['example'] else ('프로젝트' if lang == 'ko' else 'Project')
+            cover = '<div class="project-sheet" aria-hidden="true"></div>'
+        label = ui['exampleLabel'] if project['example'] else ui['projectLabel']
         link = ''
         if project['url']:
-            label_link = '프로젝트 보기' if lang == 'ko' else 'View project'
-            link = f'<a class="project-link" href="{escaped(project["url"], False)}">{label_link} ↗</a>'
+            link = f'<a class="project-link" href="{escaped(project["url"], False)}">{escaped(ui["viewProject"])} <span aria-hidden="true">↗</span></a>'
         elif project['example']:
-            link = '<span class="pending-label">' + ('자료 준비 중' if lang == 'ko' else 'Materials coming soon') + '</span>'
-        rendered.append(f'<article class="project-card" id="project-{project["id"]}">{cover}<div class="card-meta"><span>{label}</span><span>{index:02}</span></div><h3>{escaped(content["title"])}</h3><p>{escaped(content["description"])}</p>{link}</article>')
+            link = f'<p class="pending-label">{escaped(ui["pendingLabel"])}</p>'
+        rendered.append(
+            f'        <li class="project-card" id="project-{project["id"]}">{cover}'
+            f'<p class="card-meta"><span class="card-number">{index:02}</span><span>{escaped(label)}</span></p>'
+            f'<h3>{escaped(content["title"])}</h3><p class="card-description">{escaped(content["description"])}</p>{link}</li>')
     return '\n'.join(rendered)
+
+
+def render_page(template, profile, projects, images, ui, lang):
+    strings = dict(ui[lang], lang=lang)
+    caption = ''
+    if any(p['example'] for p in projects):
+        caption = f'<p class="section-caption">{escaped(strings["exampleCaption"])}</p>'
+    values = {key: escaped(value, key not in SINGLE_LINE_FIELDS) for key, value in strings.items()}
+    values.update({key: escaped(value, key not in SINGLE_LINE_FIELDS) for key, value in profile['locales'][lang].items()})
+    values.update(
+        lang=lang,
+        siteUrl=escaped(SITE_URL, False),
+        name=escaped(profile['name']),
+        github=escaped(profile['github'], False),
+        githubHandle=escaped(github_handle(profile['github']), False),
+        languageNav=language_nav(lang),
+        projectCaption=caption,
+        projects=cards(projects, images, strings),
+    )
+    placeholders = set(PLACEHOLDER.findall(template))
+    require(placeholders <= set(values), 'Template uses an undefined field')
+    require(PROFILE_FIELDS | COMPUTED_FIELDS <= placeholders, 'Template omits part of the content contract')
+    return PLACEHOLDER.sub(lambda m: values[m[1]], template)
 
 
 def build(drafts, output):
@@ -158,30 +215,24 @@ def build(drafts, output):
     require(not output.exists(), 'Output must be a new directory; existing output is never overwritten')
     require(not drafts.is_relative_to(output), 'Output cannot contain the draft source')
     profile, projects, images = validate_content(drafts)
-    pages = {}
-    for lang in ('ko', 'en'):
-        values = {key: escaped(value, key not in ('title', 'description')) for key, value in profile['locales'][lang].items()}
-        has_examples = any(p['example'] for p in projects)
-        caption = ('편집용 예시로 표시된 카드는 실제 프로젝트나 연구 성과가 아닙니다.' if lang == 'ko' else 'Cards marked as editing examples are not actual projects or research results.') if has_examples else ''
-        values.update(name=escaped(profile['name']), github=escaped(profile['github'], False), projectCaption=caption, projects=cards(projects, images, lang))
-        template = (ROOT / 'templates' / (lang + '.html')).read_text(encoding='utf-8')
-        placeholders = set(re.findall(r'\{\{(\w+)\}\}', template))
-        require(placeholders == set(values), 'Template fields do not match the content contract')
-        pages[lang] = re.sub(r'\{\{(\w+)\}\}', lambda m: values[m[1]], template)
+    ui = load_ui()
+    template = (ROOT / 'templates' / 'page.html').read_text(encoding='utf-8')
+    pages = {lang: render_page(template, profile, projects, images, ui, lang) for lang in LANGUAGES}
     # All input validation and rendering finished before producing any output.
     output.mkdir(parents=True)
-    for rel in ('index.html', '404.html', '.nojekyll', 'assets/styles.css', 'admin/index.html'):
+    for rel in STATIC_FILES:
         destination = output / rel
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / 'docs' / rel, destination)
     for lang, page in pages.items():
         (output / lang).mkdir()
         (output / lang / 'index.html').write_text(page, encoding='utf-8', newline='\n')
-    for name, payload in images.values():
-        folder = output / 'assets/media'
-        folder.mkdir(parents=True, exist_ok=True)
-        (folder / name).write_bytes(payload)
-    require(sum(p.stat().st_size for p in output.rglob('*') if p.is_file()) < 900 * 1024 * 1024, 'Published site exceeds the 900 MiB project budget')
+    if images:
+        media = output / 'assets' / 'media'
+        media.mkdir(parents=True)
+        for name, payload in images.values():
+            (media / name).write_bytes(payload)
+    require(sum(p.stat().st_size for p in output.rglob('*') if p.is_file()) < MAX_SITE_BYTES, 'Published site exceeds the 900 MiB project budget')
     return len(projects), len(images)
 
 

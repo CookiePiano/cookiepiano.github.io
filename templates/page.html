@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <meta name="theme-color" content="#f5f7f9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b2f6b" media="(prefers-color-scheme: dark)">
+  <link rel="canonical" href="{{siteUrl}}{{lang}}/">
+  <link rel="alternate" hreflang="ko" href="{{siteUrl}}ko/">
+  <link rel="alternate" hreflang="en" href="{{siteUrl}}en/">
+  <link rel="alternate" hreflang="x-default" href="{{siteUrl}}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{title}}">
+  <meta property="og:description" content="{{description}}">
+  <meta property="og:url" content="{{siteUrl}}{{lang}}/">
+  <meta property="og:locale" content="{{locale}}">
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;display=swap">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">{{skipLink}}</a>
+  <header class="site-header shell">
+    <a class="wordmark" href="./" aria-label="{{homeLabel}}">PISTCO<span aria-hidden="true">.</span></a>
+    <nav class="main-nav" aria-label="{{mainNavLabel}}">
+      <a href="#about">{{navAbout}}</a>
+      <a href="#research">{{navResearch}}</a>
+      <a href="#projects">{{navProjects}}</a>
+      <a href="#links">{{navLinks}}</a>
+    </nav>
+    <nav class="language-nav" aria-label="{{languageNavLabel}}">{{languageNav}}</nav>
+  </header>
+  <main id="main">
+    <section class="hero graph" id="about" aria-labelledby="intro-title">
+      <div class="hero-sheet shell">
+        <div class="hero-copy">
+          <h1 id="intro-title">{{headline}}</h1>
+          <p class="hero-description">{{intro}}</p>
+          <a class="cta" href="#projects">{{projectsCta}}</a>
+        </div>
+        <dl class="title-block" aria-label="{{titleBlockLabel}}">
+          <div class="title-row title-name"><dt>{{fieldName}}</dt><dd>{{name}}</dd></div>
+          <div class="title-row"><dt>{{fieldStatus}}</dt><dd><span class="status-dot" aria-hidden="true"></span>{{status}}</dd></div>
+          <div class="title-row"><dt>{{fieldSummary}}</dt><dd>{{summary}}</dd></div>
+          <div class="title-row"><dt>{{fieldDocument}}</dt><dd>{{documentType}}</dd></div>
+        </dl>
+      </div>
+    </section>
+    <section class="split shell" id="research" aria-labelledby="research-title">
+      <h2 id="research-title">{{researchTitle}}</h2>
+      <div class="research-copy">
+        <p class="lead">{{researchLead}}</p>
+        <p class="muted">{{researchBody}}</p>
+      </div>
+    </section>
+    <section class="projects shell" id="projects" aria-labelledby="projects-title">
+      <div class="split">
+        <h2 id="projects-title">{{projectsTitle}}</h2>
+        {{projectCaption}}
+      </div>
+      <ol class="project-grid">
+{{projects}}
+      </ol>
+    </section>
+    <section class="split shell" id="links" aria-labelledby="links-title">
+      <div>
+        <h2 id="links-title">{{linksTitle}}</h2>
+        <p class="muted">{{linksBody}}</p>
+      </div>
+      <a class="github-link" href="{{github}}">
+        <span class="github-name">GitHub</span>
+        <span class="github-handle">@{{githubHandle}}</span>
+        <span class="external" aria-hidden="true">↗</span>
+      </a>
+    </section>
+  </main>
+  <footer class="site-footer shell">
+    <a class="wordmark" href="./" aria-label="{{homeLabel}}">PISTCO<span aria-hidden="true">.</span></a>
+    <p>{{footer}}</p>
+    <a href="../admin/">{{adminLink}}</a>
+    <a href="#about">{{backToTop}}</a>
+  </footer>
+</body>
+</html>

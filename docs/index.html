@@ -3,10 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="refresh" content="0; url=./ko/">
-  <meta name="description" content="PISTCO의 연구와 프로젝트를 소개하는 포트폴리오. 현재 준비 중입니다.">
-  <link rel="canonical" href="https://pistco.github.io/ko/">
   <title>PISTCO — 연구 포트폴리오</title>
+  <meta name="description" content="PISTCO의 연구 분야와 프로젝트를 소개하는 개인 포트폴리오.">
+  <link rel="canonical" href="https://cookiepiano.github.io/ko/">
+  <link rel="alternate" hreflang="ko" href="https://cookiepiano.github.io/ko/">
+  <link rel="alternate" hreflang="en" href="https://cookiepiano.github.io/en/">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <script>
+    // Korean is the default; visitors whose browser prefers another language start in English.
+    var lang = (navigator.languages && navigator.languages[0]) || navigator.language || 'ko';
+    location.replace(/^ko\b/i.test(lang) ? './ko/' : './en/');
+  </script>
+  <noscript><meta http-equiv="refresh" content="0; url=./ko/"></noscript>
 </head>
-<body><p><a href="./ko/">한국어 홈페이지로 이동</a> · <a href="./en/" lang="en">English</a></p></body>
+<body><p><a href="./ko/">한국어</a> / <a href="./en/" lang="en">English</a></p></body>
 </html>

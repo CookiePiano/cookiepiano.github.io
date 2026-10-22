@@ -9,17 +9,22 @@ import time
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-REPOSITORY = 'PISTCO/pistco.github.io'
-OWNER_ID = '220297881'
-STATIC_FILES = {'index.html', '404.html', '.nojekyll', 'assets/styles.css', 'admin/index.html', 'ko/index.html', 'en/index.html'}
+from site_config import CONTENT_REPOSITORY_NAME, OWNER_ID, PUBLIC_FILES, PUBLIC_REPOSITORY_ID, SITE_URL
+
+# Addressed by ID so a repository rename cannot redirect writes elsewhere.
+API_ROOT = 'https://api.github.com/repositories/' + PUBLIC_REPOSITORY_ID
+MEDIA_FILE = re.compile(r'assets/media/[a-f0-9]{64}\.webp')
 
 
 def authorized(env):
+    owner = env.get('GITHUB_REPOSITORY_OWNER', '')
     return (env.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
-            and env.get('GITHUB_REPOSITORY') == 'PISTCO/pistco-site-content'
+            and env.get('GITHUB_REPOSITORY_OWNER_ID') == OWNER_ID
+            and bool(owner)
+            and env.get('GITHUB_REPOSITORY') == owner + '/' + CONTENT_REPOSITORY_NAME
             and env.get('GITHUB_REF') == 'refs/heads/main'
             and env.get('GITHUB_ACTOR_ID') == OWNER_ID
-            and env.get('GITHUB_TRIGGERING_ACTOR') == 'PISTCO'
+            and env.get('GITHUB_TRIGGERING_ACTOR') == owner
             and env.get('CONFIRM_PUBLICATION') == 'true')
 
 
@@ -30,10 +35,10 @@ def collect_output(folder):
             raise ValueError('Symlink in output')
         if path.is_file():
             rel = path.relative_to(folder).as_posix()
-            if rel not in STATIC_FILES and not re.fullmatch(r'assets/media/[a-f0-9]{64}\.webp', rel):
+            if rel not in PUBLIC_FILES and not MEDIA_FILE.fullmatch(rel):
                 raise ValueError('Unexpected output file')
             files[rel] = path.read_bytes()
-    if not STATIC_FILES.issubset(files):
+    if not PUBLIC_FILES <= set(files):
         raise ValueError('Missing output file')
     return files
 
@@ -44,14 +49,22 @@ def git_sha(payload):
 
 def tree_changes(existing, files):
     desired = {'docs/' + name: data for name, data in files.items()}
-    changes = []
-    for path, payload in desired.items():
-        if existing.get(path) != git_sha(payload):
-            changes.append((path, payload))
-    for path in existing:
-        if path.startswith('docs/') and path not in desired:
-            changes.append((path, None))
+    changes = [(path, payload) for path, payload in desired.items() if existing.get(path) != git_sha(payload)]
+    changes += [(path, None) for path in existing if path.startswith('docs/') and path not in desired]
     return changes
+
+
+def published_matches(files, marker):
+    for name, body in files.items():
+        if name == '.nojekyll':
+            continue
+        try:
+            with urlopen(SITE_URL + name + '?publication=' + marker, timeout=20) as response:
+                if response.read() != body:
+                    return False
+        except (HTTPError, OSError):
+            return False
+    return True
 
 
 def main(folder):
@@ -63,7 +76,7 @@ def main(folder):
     files = collect_output(Path(folder))
 
     def api(method, route, body=None):
-        req = Request('https://api.github.com/repos/' + REPOSITORY + route,
+        req = Request(API_ROOT + route,
                       data=None if body is None else json.dumps(body).encode(), method=method,
                       headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'pistco-site-publisher', 'Content-Type': 'application/json'})
         with urlopen(req, timeout=30) as response:
@@ -89,25 +102,15 @@ def main(folder):
         api('PATCH', '/git/refs/heads/main', {'sha': published, 'force': False})
     summary = Path(os.environ['GITHUB_STEP_SUMMARY'])
     with summary.open('a', encoding='utf-8') as stream:
-        stream.write(f'## Publication\n- Private draft: `{os.environ["GITHUB_SHA"]}`\n- Engine: `{os.environ.get("ENGINE_SHA", "unknown")}`\n- Public commit: `{published}`\n- Site: https://pistco.github.io/\n')
-    expected = {k: v for k, v in files.items() if k != '.nojekyll'}
-    for attempt in range(36):
-        ready = True
-        for name, body in expected.items():
-            try:
-                with urlopen('https://pistco.github.io/' + name + '?publication=' + published, timeout=20) as response:
-                    if response.read() != body:
-                        ready = False
-                        break
-            except (HTTPError, OSError):
-                ready = False
-                break
-        if ready:
+        stream.write(f'## Publication\n- Private draft: `{os.environ["GITHUB_SHA"]}`\n- Engine: `{os.environ.get("ENGINE_SHA", "unknown")}`\n- Public commit: `{published}`\n- Site: {SITE_URL}\n')
+    attempts = 36
+    for attempt in range(attempts):
+        if published_matches(files, published):
             with summary.open('a', encoding='utf-8') as stream:
                 stream.write('- Verification: all public files match this publication.\n')
             print('Public site verified. Publication complete.')
             return
-        if attempt < 35:
+        if attempt < attempts - 1:
             time.sleep(10)
     raise RuntimeError('Public commit saved, but Pages verification timed out; inspect the public Pages deployment before retrying')
 

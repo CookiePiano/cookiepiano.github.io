@@ -1,19 +1,50 @@
 <!doctype html>
 <html lang="ko">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>사이트 관리 — PISTCO</title><link rel="stylesheet" href="../assets/styles.css"></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사이트 관리 — PISTCO</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;display=swap">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
 <body>
-<a class="skip-link" href="#main">본문으로 건너뛰기</a>
-<header class="site-header"><a class="wordmark" href="../ko/">PISTCO<span>.</span></a><nav class="main-nav" aria-label="관리 메뉴"><a href="../ko/">홈페이지</a><a href="https://github.com/PISTCO/pistco-site-content">비공개 작업실 ↗</a></nav></header>
-<main id="main" class="section-shell admin-main">
-<p class="eyebrow">OWNER WORKSPACE</p><h1>사이트 관리</h1><p class="hero-description">PISTCO 계정으로 GitHub에 로그인해 관리합니다.<br>초안을 저장해도 공개되지 않습니다. ‘게시’ 작업을 실행해야 홈페이지에 반영됩니다.</p>
-<div class="admin-grid">
-<a class="admin-card" href="https://github.com/PISTCO/pistco-site-content/edit/main/content/profile.json"><span class="eyebrow">01 / PROFILE</span><h2>소개·연구 편집 ↗</h2><p>이름, 소개와 연구 분야를 한국어·영어로 수정합니다.</p></a>
-<a class="admin-card" href="https://github.com/PISTCO/pistco-site-content/edit/main/content/projects.json"><span class="eyebrow">02 / PROJECTS</span><h2>프로젝트 편집 ↗</h2><p>프로젝트 추가·수정·삭제, 순서와 이미지 연결을 관리합니다.</p></a>
-<a class="admin-card" href="https://github.com/PISTCO/pistco-site-content/upload/main/media"><span class="eyebrow">03 / MEDIA</span><h2>이미지 업로드 ↗</h2><p>JPEG·PNG·WebP, 파일당 10MiB·2,500만 화소 이하의 정지 이미지. 업로드 후 프로젝트의 image 필드에 media/my-project.jpg처럼 경로를 연결하세요.</p></a>
-<a class="admin-card" href="https://github.com/PISTCO/pistco-site-content/actions/workflows/preview.yml"><span class="eyebrow">04 / PREVIEW</span><h2>미리보기 생성 ↗</h2><p>Run workflow → main을 선택합니다. 완료된 작업의 preview 파일을 내려받아 로컬에서 확인하세요.</p></a>
-<a class="admin-card" href="https://github.com/PISTCO/pistco-site-content/actions/workflows/publish.yml"><span class="eyebrow">05 / PUBLISH</span><h2>게시 실행 ↗</h2><p>현재 초안 전체를 공개합니다. Run workflow에서 확인란을 선택하고 실행하세요. 배포 완료까지 잠시 걸립니다.</p></a>
-<a class="admin-card" href="https://github.com/PISTCO/pistco-site-content/blob/main/README.md"><span class="eyebrow">06 / GUIDE</span><h2>편집·복구 안내 ↗</h2><p>파일 작성 예시, 이미지 교체, 게시 결과와 이전 버전 복구 방법을 확인합니다.</p></a>
-</div>
-<aside class="admin-note"><h2>공개 전에 확인하세요</h2><p>프로젝트에 연결한 이미지와 작성한 내용은 게시 시 공개됩니다. 사용하지 않은 이미지와 초안 원본은 비공개 저장소에 남습니다. 공개한 자료는 Git 이력이나 방문자가 저장한 사본에 남을 수 있습니다.</p><p>이 안내 화면은 누구나 볼 수 있지만, 연결된 작업실과 작업 실행 권한은 GitHub에서 제한합니다. 별도의 비밀번호나 토큰을 이 페이지에 입력하지 않습니다.</p></aside>
-</main><footer class="site-footer"><a class="wordmark" href="../ko/">PISTCO<span>.</span></a><p lang="en">Owner management · Authentication is handled by GitHub.</p></footer>
-</body></html>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header shell">
+    <a class="wordmark" href="../ko/" aria-label="PISTCO 홈">PISTCO<span aria-hidden="true">.</span></a>
+    <nav class="main-nav" aria-label="관리 메뉴">
+      <a href="../ko/">홈페이지</a>
+      <a href="https://github.com/CookiePiano/pistco-site-content">비공개 작업실 <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main id="main" class="shell">
+    <div class="page-intro">
+      <h1>사이트 관리</h1>
+      <p class="hero-description">CookiePiano 계정으로 GitHub에 로그인해 관리합니다. 초안을 저장해도 공개되지 않으며, 마지막 단계의 게시를 실행해야 홈페이지에 반영됩니다.</p>
+    </div>
+    <ol class="steps">
+      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/edit/main/content/profile.json"><h2>소개·연구 편집 <span aria-hidden="true">↗</span></h2><p>이름, 소개와 연구 분야를 한국어·영어로 함께 수정합니다.</p></a></li>
+      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/edit/main/content/projects.json"><h2>프로젝트 편집 <span aria-hidden="true">↗</span></h2><p>프로젝트를 추가·수정·삭제하고, 순서와 이미지 연결을 관리합니다.</p></a></li>
+      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/upload/main/media"><h2>이미지 업로드 <span aria-hidden="true">↗</span></h2><p>JPEG·PNG·WebP 정지 이미지, 파일당 10MiB·2,500만 화소 이하. 올린 뒤 프로젝트의 image 필드에 media/my-project.jpg처럼 경로를 적습니다.</p></a></li>
+      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/actions/workflows/preview.yml"><h2>미리보기 생성 <span aria-hidden="true">↗</span></h2><p>Run workflow에서 main을 선택해 실행합니다. 완료된 작업의 preview 파일을 내려받아 확인합니다.</p></a></li>
+      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/actions/workflows/publish.yml"><h2>게시 <span aria-hidden="true">↗</span></h2><p>현재 초안 전체를 공개합니다. Run workflow에서 확인란을 선택하고 실행하면 몇 분 안에 반영됩니다.</p></a></li>
+    </ol>
+    <aside class="admin-note">
+      <h2>공개 전에 확인하세요</h2>
+      <div>
+        <p>프로젝트에 연결한 이미지와 작성한 내용은 게시하면 공개됩니다. 연결하지 않은 이미지와 초안 원본은 비공개 저장소에 남습니다. 한 번 공개한 자료는 Git 이력이나 방문자가 저장한 사본에 남을 수 있습니다.</p>
+        <p>이 안내 화면은 누구나 볼 수 있지만, 작업실과 작업 실행 권한은 GitHub가 제한합니다. 이 페이지에는 비밀번호나 토큰을 입력하지 않습니다.</p>
+        <p><a class="guide-link" href="https://github.com/CookiePiano/pistco-site-content/blob/main/README.md">편집·복구 안내 <span aria-hidden="true">↗</span></a></p>
+      </div>
+    </aside>
+  </main>
+  <footer class="site-footer shell">
+    <a class="wordmark" href="../ko/" aria-label="PISTCO 홈">PISTCO<span aria-hidden="true">.</span></a>
+    <p>GitHub 로그인으로만 관리할 수 있습니다.</p>
+  </footer>
+</body>
+</html>
