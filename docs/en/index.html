@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PISTCO — Research Portfolio</title>
-  <meta name="description" content="PISTCO&#x27;s personal research and project portfolio. Profile, research interests, and project materials are being prepared.">
-  <meta name="theme-color" content="#f5f7f9" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0b2f6b" media="(prefers-color-scheme: dark)">
+  <title>CookiePiano — Code &amp; repositories</title>
+  <meta name="description" content="Explore a selection of public GitHub repositories and the work inside them by CookiePiano.">
+  <meta name="theme-color" content="#ffffff">
+  <script src="../assets/theme.js"></script>
   <link rel="canonical" href="https://cookiepiano.github.io/en/">
   <link rel="alternate" hreflang="ko" href="https://cookiepiano.github.io/ko/">
   <link rel="alternate" hreflang="en" href="https://cookiepiano.github.io/en/">
   <link rel="alternate" hreflang="x-default" href="https://cookiepiano.github.io/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="PISTCO — Research Portfolio">
-  <meta property="og:description" content="PISTCO&#x27;s personal research and project portfolio. Profile, research interests, and project materials are being prepared.">
+  <meta property="og:title" content="CookiePiano — Code &amp; repositories">
+  <meta property="og:description" content="Explore a selection of public GitHub repositories and the work inside them by CookiePiano.">
   <meta property="og:url" content="https://cookiepiano.github.io/en/">
   <meta property="og:locale" content="en_US">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
@@ -22,68 +22,56 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;display=swap">
   <link rel="stylesheet" href="../assets/styles.css">
 </head>
-<body>
+<body id="top">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header shell">
-    <a class="wordmark" href="./" aria-label="PISTCO home">PISTCO<span aria-hidden="true">.</span></a>
+    <a class="wordmark" href="./" aria-label="CookiePiano home">CookiePiano</a>
     <nav class="main-nav" aria-label="Main navigation">
-      <a href="#about">About</a>
-      <a href="#research">Research</a>
-      <a href="#projects">Projects</a>
-      <a href="#links">Links</a>
+      <a href="#repositories">Repositories</a>
+      <a href="https://github.com/CookiePiano">GitHub</a>
     </nav>
-    <nav class="language-nav" aria-label="Language"><a href="../ko/" lang="ko" hreflang="ko">KO</a><span aria-hidden="true">/</span><a href="../en/" lang="en" aria-current="page">EN</a></nav>
+    <div class="header-tools">
+      <nav class="language-nav" aria-label="Language"><a href="../ko/" lang="ko" hreflang="ko">KO</a><span aria-hidden="true">/</span><a href="../en/" lang="en" aria-current="page">EN</a></nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Dark mode" aria-pressed="false" hidden>
+        <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+        <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg>
+      </button>
+    </div>
   </header>
-  <main id="main">
-    <section class="hero graph" id="about" aria-labelledby="intro-title">
-      <div class="hero-sheet shell">
-        <div class="hero-copy">
-          <h1 id="intro-title">Research in progress.<br>Projects in focus.</h1>
-          <p class="hero-description">A home for PISTCO&#x27;s research and projects.<br>The first stories are on their way.</p>
-          <a class="cta" href="#projects">View projects</a>
+  <main id="main" class="shell" tabindex="-1">
+    <section class="hero" aria-labelledby="intro-title">
+      <div class="hero-copy">
+        <h1 id="intro-title">Code &amp; repositories<br>by CookiePiano.</h1>
+        <p class="hero-description">A selection of public GitHub repositories<br>and the work inside them.</p>
+        <div class="hero-actions">
+          <a class="button" href="#repositories">Explore repositories</a>
+          <a class="text-link" href="https://github.com/CookiePiano" aria-label="GitHub profile @CookiePiano">GitHub profile</a>
         </div>
-        <dl class="title-block" aria-label="Portfolio title block">
-          <div class="title-row title-name"><dt>Name</dt><dd>PISTCO</dd></div>
-          <div class="title-row"><dt>Status</dt><dd><span class="status-dot" aria-hidden="true"></span>In preparation</dd></div>
-          <div class="title-row"><dt>Summary</dt><dd>An introduction, research interests,<br>and projects — coming soon.</dd></div>
-          <div class="title-row"><dt>Document</dt><dd>Personal research portfolio</dd></div>
-        </dl>
       </div>
+<aside class="featured-repository" aria-labelledby="featured-title"><p class="featured-label"><svg class="repository-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5c-2.5-2-6-2-9-1v15c3-1 6.5-1 9 1 2.5-2 6-2 9-1V4c-3-1-6.5-1-9 1Z"/><path d="M12 5v15"/></svg>Featured repository</p><h2 id="featured-title">cookiepiano.github.io</h2><p class="featured-description">A personal homepage in Korean and English.<br>Static pages, with a Python build tool.</p><ul class="tags" aria-label="Repository tags"><li>HTML</li><li>CSS</li><li>Python</li></ul><a class="repository-link" href="https://github.com/CookiePiano/cookiepiano.github.io">View on GitHub<span class="sr-only">: cookiepiano.github.io</span><svg class="external-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg></a></aside>
     </section>
-    <section class="split shell" id="research" aria-labelledby="research-title">
-      <h2 id="research-title">Research interests</h2>
-      <div class="research-copy">
-        <p class="lead">The questions to explore.<br>The methods to find answers.</p>
-        <p class="muted">Research topics and interests are being collected.<br>More details will follow.</p>
+    <section class="repositories" id="repositories" aria-labelledby="repositories-title">
+      <div class="section-heading">
+        <h2 id="repositories-title">Repositories</h2>
+        <p>A selection of public repositories</p>
       </div>
-    </section>
-    <section class="projects shell" id="projects" aria-labelledby="projects-title">
-      <div class="split">
-        <h2 id="projects-title">Projects</h2>
-        <p class="section-caption">Cards marked as editing examples are not actual projects or research results.</p>
-      </div>
-      <ol class="project-grid">
-        <li class="project-card" id="project-first-project"><div class="project-sheet" aria-hidden="true"></div><p class="card-meta"><span class="card-number">01</span><span>Editing example</span></p><h3>First project</h3><p class="card-description">A place to introduce a project&#x27;s question, approach, and outcomes.</p><p class="pending-label">Materials coming soon</p></li>
-        <li class="project-card" id="project-second-project"><div class="project-sheet" aria-hidden="true"></div><p class="card-meta"><span class="card-number">02</span><span>Editing example</span></p><h3>Second project</h3><p class="card-description">A place for images, descriptions, and links that document the process and results.</p><p class="pending-label">Materials coming soon</p></li>
-      </ol>
-    </section>
-    <section class="split shell" id="links" aria-labelledby="links-title">
-      <div>
-        <h2 id="links-title">Find me elsewhere</h2>
-        <p class="muted">Explore public code and repositories on GitHub.</p>
-      </div>
-      <a class="github-link" href="https://github.com/CookiePiano">
-        <span class="github-name">GitHub</span>
-        <span class="github-handle">@CookiePiano</span>
-        <span class="external" aria-hidden="true">↗</span>
-      </a>
+
+      <ul class="repository-list">
+        <li class="repository-row" id="repository-homepage"><svg class="repository-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5c-2.5-2-6-2-9-1v15c3-1 6.5-1 9 1 2.5-2 6-2 9-1V4c-3-1-6.5-1-9 1Z"/><path d="M12 5v15"/></svg><div class="repository-copy"><h3>cookiepiano.github.io</h3><p class="repository-description">A personal homepage in Korean and English. Static pages, with a Python build tool.</p><ul class="tags" aria-label="Repository tags"><li>HTML</li><li>CSS</li><li>Python</li></ul></div><a class="repository-link" href="https://github.com/CookiePiano/cookiepiano.github.io">View on GitHub<span class="sr-only">: cookiepiano.github.io</span><svg class="external-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg></a></li>
+        <li class="repository-row" id="repository-space-anything"><svg class="repository-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5c-2.5-2-6-2-9-1v15c3-1 6.5-1 9 1 2.5-2 6-2 9-1V4c-3-1-6.5-1-9 1Z"/><path d="M12 5v15"/></svg><div class="repository-copy"><h3>Space_Anything</h3><p class="repository-description">A repository for topics to explore. Currently contains a README and a license.</p><ul class="tags" aria-label="Repository tags"><li>Markdown</li></ul></div><a class="repository-link" href="https://github.com/CookiePiano/Space_Anything">View on GitHub<span class="sr-only">: Space_Anything</span><svg class="external-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg></a></li>
+      </ul>
     </section>
   </main>
   <footer class="site-footer shell">
-    <a class="wordmark" href="./" aria-label="PISTCO home">PISTCO<span aria-hidden="true">.</span></a>
-    <p>Research portfolio · In preparation</p>
-    <a href="../admin/">Manage &amp; upload</a>
-    <a href="#about">Back to top</a>
+    <div class="footer-identity">
+      <a class="wordmark" href="./" aria-label="CookiePiano home">CookiePiano</a>
+      <p>A home for code and repositories.</p>
+    </div>
+    <nav class="footer-nav" aria-label="Footer navigation">
+      <a href="https://github.com/CookiePiano">GitHub</a>
+      <a href="../admin/">Manage site</a>
+      <a href="#top">Back to top</a>
+    </nav>
   </footer>
 </body>
 </html>

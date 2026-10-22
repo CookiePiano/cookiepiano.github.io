@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>사이트 관리 — PISTCO</title>
+  <meta name="theme-color" content="#ffffff">
+  <script src="../assets/theme.js"></script>
+  <title>사이트 관리 — CookiePiano</title>
   <meta name="robots" content="noindex,nofollow">
   <meta name="referrer" content="no-referrer">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
@@ -15,35 +17,39 @@
 <body>
   <a class="skip-link" href="#main">본문으로 건너뛰기</a>
   <header class="site-header shell">
-    <a class="wordmark" href="../ko/" aria-label="PISTCO 홈">PISTCO<span aria-hidden="true">.</span></a>
+    <a class="wordmark" href="../ko/" aria-label="CookiePiano 홈">CookiePiano</a>
     <nav class="main-nav" aria-label="관리 메뉴">
       <a href="../ko/">홈페이지</a>
       <a href="https://github.com/CookiePiano/pistco-site-content">비공개 작업실 <span aria-hidden="true">↗</span></a>
     </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="다크 모드" aria-pressed="false" hidden>
+        <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+        <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg>
+      </button>
   </header>
-  <main id="main" class="shell">
+  <main id="main" class="shell" tabindex="-1">
     <div class="page-intro">
       <h1>사이트 관리</h1>
       <p class="hero-description">CookiePiano 계정으로 GitHub에 로그인해 관리합니다. 초안을 저장해도 공개되지 않으며, 마지막 단계의 게시를 실행해야 홈페이지에 반영됩니다.</p>
     </div>
     <ol class="steps">
-      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/edit/main/content/profile.json"><h2>소개·연구 편집 <span aria-hidden="true">↗</span></h2><p>이름, 소개와 연구 분야를 한국어·영어로 함께 수정합니다.</p></a></li>
-      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/edit/main/content/projects.json"><h2>프로젝트 편집 <span aria-hidden="true">↗</span></h2><p>프로젝트를 추가·수정·삭제하고, 순서와 이미지 연결을 관리합니다.</p></a></li>
-      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/upload/main/media"><h2>이미지 업로드 <span aria-hidden="true">↗</span></h2><p>JPEG·PNG·WebP 정지 이미지, 파일당 10MiB·2,500만 화소 이하. 올린 뒤 프로젝트의 image 필드에 media/my-project.jpg처럼 경로를 적습니다.</p></a></li>
+      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/edit/main/content/profile.json"><h2>소개 편집 <span aria-hidden="true">↗</span></h2><p>이름과 홈페이지 소개를 한국어·영어로 함께 수정합니다.</p></a></li>
+      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/edit/main/content/projects.json"><h2>저장소 편집 <span aria-hidden="true">↗</span></h2><p>소개할 공개 저장소와 설명, 순서, 대표 여부(featured), 기술 태그(tags)를 관리합니다.</p></a></li>
+      <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/upload/main/media"><h2>이미지 업로드 <span aria-hidden="true">↗</span></h2><p>JPEG·PNG·WebP 정지 이미지, 파일당 10MiB·2,500만 화소 이하. 올린 뒤 저장소의 image 필드에 media/my-repository.jpg처럼 경로를 적습니다.</p></a></li>
       <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/actions/workflows/preview.yml"><h2>미리보기 생성 <span aria-hidden="true">↗</span></h2><p>Run workflow에서 main을 선택해 실행합니다. 완료된 작업의 preview 파일을 내려받아 확인합니다.</p></a></li>
       <li><a class="step" href="https://github.com/CookiePiano/pistco-site-content/actions/workflows/publish.yml"><h2>게시 <span aria-hidden="true">↗</span></h2><p>현재 초안 전체를 공개합니다. Run workflow에서 확인란을 선택하고 실행하면 몇 분 안에 반영됩니다.</p></a></li>
     </ol>
     <aside class="admin-note">
       <h2>공개 전에 확인하세요</h2>
       <div>
-        <p>프로젝트에 연결한 이미지와 작성한 내용은 게시하면 공개됩니다. 연결하지 않은 이미지와 초안 원본은 비공개 저장소에 남습니다. 한 번 공개한 자료는 Git 이력이나 방문자가 저장한 사본에 남을 수 있습니다.</p>
+        <p>저장소에 연결한 이미지와 작성한 내용은 게시하면 공개됩니다. 연결하지 않은 이미지와 초안 원본은 비공개 저장소에 남습니다. 한 번 공개한 자료는 Git 이력이나 방문자가 저장한 사본에 남을 수 있습니다.</p>
         <p>이 안내 화면은 누구나 볼 수 있지만, 작업실과 작업 실행 권한은 GitHub가 제한합니다. 이 페이지에는 비밀번호나 토큰을 입력하지 않습니다.</p>
         <p><a class="guide-link" href="https://github.com/CookiePiano/pistco-site-content/blob/main/README.md">편집·복구 안내 <span aria-hidden="true">↗</span></a></p>
       </div>
     </aside>
   </main>
   <footer class="site-footer shell">
-    <a class="wordmark" href="../ko/" aria-label="PISTCO 홈">PISTCO<span aria-hidden="true">.</span></a>
+    <a class="wordmark" href="../ko/" aria-label="CookiePiano 홈">CookiePiano</a>
     <p>GitHub 로그인으로만 관리할 수 있습니다.</p>
   </footer>
 </body>
